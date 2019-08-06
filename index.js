@@ -167,7 +167,7 @@ let run = function() {
             path_media_ext: 'storage-temp/01.mp4',
             mimetype: 'video/mp4'
         }
-        const text = 'This is a server update test. Thankyou for your continued check-ins with Ash and Snow, the fish.'/*'Fish names: Ash, Snow | ' + new Date().toLocaleString('AU') + ' | #livecam #video #aquarium #fish #pets #animals'*/;
+        const text = 'This is a server test.';
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
         const base64data = buff.toString('base64');
         const dbEntry = {
