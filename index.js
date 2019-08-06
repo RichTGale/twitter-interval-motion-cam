@@ -16,60 +16,76 @@ db.loadDatabase(error => {
 /*******************Uploading Media/Tweet******************/
 
 const tweet = function(access_token, text, file) {
-  const stats = fs.statSync(file.base_path + file.path_media_ext);
-  const formData = {
-    command: 'INIT',
-    media_type: file.mimetype,
-    total_bytes: stats.size
-  };
-  const oAuthData = {
-    consumer_key: process.env.CONSUMER_KEY,
-    consumer_secret: process.env.CONSUMER_KEY_SECRET,
-    token: process.env.ACCESS_TOKEN,
-    token_secret: process.env.ACCESS_TOKEN_SECRET
-  };
-  // First step, we send the video size
-  request.post({ url: 'https://upload.twitter.com/1.1/media/upload.json', oauth: oAuthData,
-    form: formData, json: true }, function(err, response, body) {
-    if (!err) {
-      // With the response, we start the video transfer in chunks
-      transferProcess(0, body.media_id_string, file, stats.size, access_token, function(err) {
-        if (!err) {
-          const formData = {
-              command: 'FINALIZE',
-              media_id: body.media_id_string
-          };          
-          // Once the transfer ended, we finalize it
-          request.post({ url: 'https://upload.twitter.com/1.1/media/upload.json', oauth: oAuthData,
-            form: formData, json: true }, function(err, response, body) {
-            if (!err && !body.error) {
-              const qs = {
-                  status: text,
-                  media_ids: body.media_id_string
-              };
-              // And the last step, we publish the video as a status update
-              request.post({ url: 'https://api.twitter.com/1.1/statuses/update.json', oauth: oAuthData,
-                qs: qs, json: true }, function(err, response) {
-                if (!err) {
-                  console.log(`THE FOOTAGE WAS TWEETED! =)`);
-                  //Clear storage
-                  glob(`${file.base_path}storage-temp/*`, function (err, files) {
-                    if (err){console.error(err);}
-                    for (file of files) {
-                        let deleteFile = spawn('rm', [file]);
-                        deleteFile.stderr.on('data', function(data) {
-                            console.log(`CLEAR STORAGE: ${data}`);
-                        });
-                        console.log('Temp storage file cleared');
-                    }
-                  })
-                }
-              });
-            }
-          });
-        }
-      }); 
-    }
+  return new Promise((resolve, reject) => {
+    const stats = fs.statSync(file.base_path + file.path_media_ext);
+    const formData = {
+      command: 'INIT',
+      media_type: file.mimetype,
+      total_bytes: stats.size
+    };
+    const oAuthData = {
+      consumer_key: process.env.CONSUMER_KEY,
+      consumer_secret: process.env.CONSUMER_KEY_SECRET,
+      token: process.env.ACCESS_TOKEN,
+      token_secret: process.env.ACCESS_TOKEN_SECRET
+    };
+    // First step, we send the video size
+    request.post({ url: 'https://upload.twitter.com/1.1/media/upload.json', oauth: oAuthData,
+      form: formData, json: true }, function(err, response, body) {
+      if (err) {
+        reject(err);
+      } else {
+        // With the response, we start the video transfer in chunks
+        transferProcess(0, body.media_id_string, file, stats.size, access_token, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            const formData = {
+                command: 'FINALIZE',
+                media_id: body.media_id_string
+            };          
+            // Once the transfer ended, we finalize it
+            request.post({ url: 'https://upload.twitter.com/1.1/media/upload.json', oauth: oAuthData,
+              form: formData, json: true }, function(err, response, body) {
+              if (err) {
+                reject(err);
+              } else if (body.error) {
+                reject(body.error);
+              } else {
+                const qs = {
+                    status: text,
+                    media_ids: body.media_id_string
+                };
+                // And the last step, we publish the video as a status update
+                request.post({ url: 'https://api.twitter.com/1.1/statuses/update.json', oauth: oAuthData,
+                  qs: qs, json: true }, function(err, response) {
+                  if (err) {
+                    reject(error);
+                  } else {
+                    console.log(`THE FOOTAGE WAS TWEETED! =)`);
+                    //Clear storage
+                    glob(`${file.base_path}storage-temp/*`, function (err, files) {
+                      if (err) {
+                        reject(err);
+                      } else {
+                        for (file of files) {
+                          let deleteFile = spawn('rm', [file]);
+                          deleteFile.stderr.on('data', function(data) {
+                              console.log(`CLEAR STORAGE: ${data}`);
+                          });
+                          console.log('Temp storage file cleared');
+                        }
+                        resolve('Success =)');
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        }); 
+      }
+    });
   });
 }
 
@@ -171,12 +187,12 @@ let run = function() {
           media: base64data
         }
     
-        db.insert(dbEntry, (err, response) => { 
+        db.insert(dbEntry, async (err, response) => { 
           if (err) {
             console.error(err);
           } else {
             file.id = response._id;
-            tweet(keys, text, file); // Upload to Twitter
+            console.log(await tweet(keys, text, file)); // Upload to Twitter
           }
         });
       } else {
