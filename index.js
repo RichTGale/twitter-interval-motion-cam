@@ -145,7 +145,7 @@ const transferProcess = function(index, mediaId, file, fileSize, access_token, c
 let run = function() {
     
     let file = {
-        base_path: '/home/drowsybot/Desktop/twitter-interval-motion-cam/',
+        base_path: '/home/username/twitter-interval-motion-cam/',
         path_media_ext: 'storage-temp/01.mp4',
         mimetype: 'video/mp4'
     }
@@ -161,11 +161,6 @@ let run = function() {
         const keys = {
             token: process.env.ACCESS_TOKEN,
             token_secret: process.env.ACCESS_TOKEN_SECRET
-            }
-        let file = {
-            base_path: '/home/username/twitter-interval-motion-cam/',
-            path_media_ext: 'storage-temp/01.mp4',
-            mimetype: 'video/mp4'
         }
         const text = 'This is a server test.';
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
