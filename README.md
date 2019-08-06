@@ -5,7 +5,8 @@ Instructions:
 
 1. open a command prompt and enter the following commands:
 
-  - clone this repository to /home/*username*/
+  - cd /home/*username*/
+  - git clone https://github.com/drowsybot/twitter-interval-motion-cam.git
   - cd /home/*username*/twitter-interval-motion-cam/
   - npm install child_process
   - npm install dotenv
