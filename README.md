@@ -3,7 +3,7 @@ Records motion detected video at intervals and uploads it to twitter.
 
 Instructions:
 
-1. Install Nodejs: https://nodejs.org/en/
+1. Install Nodejs: https://nodejs.org/
 
 2. Install Motion: https://motion-project.github.io/motion_build.html
 
