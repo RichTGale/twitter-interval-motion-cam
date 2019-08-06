@@ -149,7 +149,6 @@ let run = function() {
         mimetype: 'video/mp4'
     }
     
-
     let motionProcess = spawn('motion', ['-c', `${file.base_path}motion.conf`]);
     
     setTimeout(function(){
