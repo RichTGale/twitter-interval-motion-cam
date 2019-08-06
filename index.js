@@ -153,28 +153,36 @@ let run = function() {
     console.log('Killing motion');
     motionProcess.kill();
 
-    const keys = {
-      token: process.env.ACCESS_TOKEN,
-      token_secret: process.env.ACCESS_TOKEN_SECRET
-    }
-    const text = 'This is a server test.';
-    const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
-    const base64data = buff.toString('base64');
-    const dbEntry = {
-      timestamp: Date.now(),
-      tweet: text,
-      media: base64data
-    }
-
-    db.insert(dbEntry, (err, response) => { 
-      if (err) {
+    glob(`${file.base_path}storage-temp/01.mp4`, function (err, files) {
+      if (err){
         console.error(err);
+      } else if (files.length > 0) {
+        const keys = {
+          token: process.env.ACCESS_TOKEN,
+          token_secret: process.env.ACCESS_TOKEN_SECRET
+        }
+        const text = 'This is a server test.';
+        const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
+        const base64data = buff.toString('base64');
+        const dbEntry = {
+          timestamp: Date.now(),
+          tweet: text,
+          media: base64data
+        }
+    
+        db.insert(dbEntry, (err, response) => { 
+          if (err) {
+            console.error(err);
+          } else {
+            file.id = response._id;
+            tweet(keys, text, file); // Upload to Twitter
+          }
+        });
       } else {
-        file.id = response._id;
-        tweet(keys, text, file); // Upload to Twitter
+        console.log('No motion detected');
       }
     });
-  }, 1000*60*3);
+  }, 1000*60*5);
 
   motionProcess.stdout.on('data', function(data) {
     console.log(`MOTION: ${data}`);
