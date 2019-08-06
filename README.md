@@ -1,13 +1,13 @@
 # twitter-interval-motion-cam
 Records motion detected video at intervals and uploads it to twitter.
 
+NOTE: Code has only been tested using a Video4linux webcam device.
+
 Instructions:
 
 1. Install Nodejs: https://nodejs.org/
 
 2. Install Motion: https://motion-project.github.io/motion_build.html
-
-  NOTE: Code has only been tested using a Video4linux webcam device.
 
 3. Open a command prompt and enter the following commands:
 
