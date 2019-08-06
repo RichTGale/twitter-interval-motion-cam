@@ -153,6 +153,7 @@ let run = function() {
     console.log('Killing motion');
     motionProcess.kill();
 
+    // Check if motion-detected footage was saved
     glob(`${file.base_path}storage-temp/01.mp4`, function (err, files) {
       if (err){
         console.error(err);
