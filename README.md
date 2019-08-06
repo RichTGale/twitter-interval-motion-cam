@@ -3,7 +3,7 @@ Records motion detected video at intervals and uploads it to twitter.
 
 NOTE: 
 - Code has only been tested using a Video4linux webcam device.
-- Code and instruction are written for use on standard Linux distributions such as Debian, Ubuntu, rasbian...
+- Code and instruction are written for use on standard Linux distributions such as Debian, Ubuntu and Rasbian.
 
 Instructions:
 
