@@ -39,3 +39,7 @@ Instructions:
 8. In a command prompt in the same directory type the command: *sudo node index.js*
 
 9. Wait a few minutes and and view your video on Twitter.
+
+Optional:
+  - Change camera overlay label on line 65 of motion.conf
+  - Change camera resolution at lines 53 and 56 of motion.conf
