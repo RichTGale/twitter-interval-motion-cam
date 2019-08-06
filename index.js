@@ -51,8 +51,8 @@ const tweet = function(access_token, text, file) {
               request.post({ url: 'https://api.twitter.com/1.1/statuses/update.json', oauth: oAuthData,
                 qs: qs, json: true }, function(err, response) {
                 if (!err) {
-                    console.log(`THE FOOTAGE WAS TWEETED! =)`);
-                    //Clear storage
+                  console.log(`THE FOOTAGE WAS TWEETED! =)`);
+                  //Clear storage
                   glob(`${file.base_path}storage-temp/*`, function (err, files) {
                     if (err){console.error(err);}
                     for (file of files) {
