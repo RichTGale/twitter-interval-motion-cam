@@ -7,6 +7,8 @@ Instructions:
 
 2. Install Motion: https://motion-project.github.io/motion_build.html
 
+  NOTE: Code has only been tested using a Video4linux webcam device.
+
 3. Open a command prompt and enter the following commands:
 
   - cd /home/*username*/
