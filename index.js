@@ -56,15 +56,14 @@ const tweet = function(access_token, text, file) {
                                     glob(`${file.base_path}storage-temp/*`, function (err, files) {
                                         if (err){console.error(err);}
                                         for (file of files) {
-                                            let deleteFile = spawn('rm', ['-rf', file]);
+                                            let deleteFile = spawn('rm', [file]);
                                             deleteFile.stdout.on('data', function(data) {
                                                 console.log(`CLEAR STORAGE: ${data}`);
                                             });
                                             deleteFile.stderr.on('data', function(data) {
                                                 console.log(`CLEAR STORAGE: ${data}`);
                                             });
-                                            console.log('Temp storage cleared');
-                                            console.log('Restarting in 3 hours');
+                                            console.log('Temp storage file cleared');
                                         }
                                     })
                                 }
