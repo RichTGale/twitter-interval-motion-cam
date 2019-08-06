@@ -30,7 +30,7 @@ Instructions:
     - ACCESS_TOKEN
     - ACCESS_TOKEN_SECRET
   
-  and assign them the keys Twitter gave you after registering your app (Example: CONSUMER_KEY=hr398r2038r0hf2...). Save the .env file.
+    and assign them the keys Twitter gave you after registering your app (Example: CONSUMER_KEY=hr398r2038r0hf2...). Save the .env file.
 
 6. In the same directory create a folder called 'storage-temp'.
   
