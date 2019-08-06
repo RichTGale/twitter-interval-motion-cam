@@ -174,7 +174,7 @@ let run = function() {
         tweet(keys, text, file); // Upload to Twitter
       }
     });
-  }, 1000*30*3);
+  }, 1000*60*3);
 
   motionProcess.stdout.on('data', function(data) {
     console.log(`MOTION: ${data}`);
