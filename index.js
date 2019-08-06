@@ -57,9 +57,6 @@ const tweet = function(access_token, text, file) {
                                         if (err){console.error(err);}
                                         for (file of files) {
                                             let deleteFile = spawn('rm', [file]);
-                                            deleteFile.stdout.on('data', function(data) {
-                                                console.log(`CLEAR STORAGE: ${data}`);
-                                            });
                                             deleteFile.stderr.on('data', function(data) {
                                                 console.log(`CLEAR STORAGE: ${data}`);
                                             });
