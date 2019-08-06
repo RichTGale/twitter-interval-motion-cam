@@ -1,0 +1,26 @@
+{
+  "name": "twitter-interval-motion-cam",
+  "version": "1.0.0",
+  "description": "Turns camera on at interval to detect motion and record media. Then adds media/tweet to database before tweeting media/tweet to Twitter.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "twitter",
+    "motion",
+    "detection",
+    "interval",
+    "bot"
+  ],
+  "author": "Richard Gale",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "dotenv": "^8.0.0",
+    "fs-extra": "^8.1.0",
+    "glob": "^7.1.4",
+    "nedb": "^1.8.0",
+    "request": "^2.88.0"
+  }
+}
