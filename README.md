@@ -25,4 +25,4 @@ Instructions:
   
 5. In a command prompt in the same directory type the command: *sudo node index.js*
 
-5. Wait a few minutesand and view your video on Twitter.
+5. Wait a few minutes and and view your video on Twitter.
