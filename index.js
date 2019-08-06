@@ -163,7 +163,7 @@ let run = function() {
             token_secret: process.env.ACCESS_TOKEN_SECRET
             }
         let file = {
-            base_path: '/home/drowsybot/Desktop/twitter-interval-motion-cam/',
+            base_path: '/home/username/twitter-interval-motion-cam/',
             path_media_ext: 'storage-temp/01.mp4',
             mimetype: 'video/mp4'
         }
