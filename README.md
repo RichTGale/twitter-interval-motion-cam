@@ -44,4 +44,4 @@ Optional:
   - Change camera overlay label on line 65 of motion.conf
   - Change camera resolution at lines 53 and 56 of motion.conf
   - Change how often it uploads a video on line 213 of index.js
-  - change how long it detects motion for on line 202 of index.js
+  - Change how long it detects motion for on line 202 of index.js
