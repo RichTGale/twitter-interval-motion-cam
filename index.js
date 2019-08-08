@@ -157,7 +157,7 @@ const transferProcess = function(index, mediaId, file, fileSize, access_token, c
 let run = function() {
   
   let file = {
-    base_path: '/home/username/twitter-interval-motion-cam/',
+    base_path: '/home/pi/Documents/programming/node/twitter/twitter-interval-motion-cam/',
     path_media_ext: 'storage-temp/01.mp4',
     mimetype: 'video/mp4'
   }
@@ -178,7 +178,7 @@ let run = function() {
           token: process.env.ACCESS_TOKEN,
           token_secret: process.env.ACCESS_TOKEN_SECRET
         }
-        const text = 'This is a server test.';
+        const text = 'Fish names: Ash, Snow | ' + new Date().toLocaleString('AU') + ' | #livecam #video #aquarium #fish #pets #animals';
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
         const base64data = buff.toString('base64');
         const dbEntry = {
@@ -192,7 +192,13 @@ let run = function() {
             console.error(err);
           } else {
             file.id = response._id;
-            console.log(await tweet(keys, text, file)); // Upload to Twitter
+            await tweet(keys, text, file) // Upload to Twitter
+            .then(response => {
+              console.log(response);
+            })
+            .catch(err => {
+              console.error(err);
+            });
           }
         });
       } else {
