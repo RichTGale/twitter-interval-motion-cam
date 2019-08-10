@@ -7,12 +7,6 @@ require('dotenv').config();
 
 let db = new Datastore('database.db');
 
-db.loadDatabase(error => {
-  if (error) {
-    console.error(`Failed to load database: ${error}`);
-  }
-});
-
 /*******************Uploading Media/Tweet******************/
 
 const tweet = function(access_token, text, file) {
@@ -215,5 +209,11 @@ let run = function() {
   });
 }
 
-run();
-setInterval(async () => {run();}, 1000*60*60*3);
+db.loadDatabase(error => {
+  if (error) {
+    console.error(`Failed to load database: ${error}`);
+  } else {
+    run();
+    setInterval(async () => {run();}, 1000*60*60*3);
+  }
+});
