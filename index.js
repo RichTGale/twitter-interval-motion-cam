@@ -157,7 +157,7 @@ const transferProcess = function(index, mediaId, file, fileSize, access_token, c
 let run = function() {
   
   let file = {
-    base_path: '/home/pi/Documents/programming/node/twitter/twitter-interval-motion-cam/',
+    base_path: '/home/username/twitter-interval-motion-cam/',
     path_media_ext: 'storage-temp/01.mp4',
     mimetype: 'video/mp4'
   }
