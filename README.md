@@ -22,7 +22,7 @@ Instructions:
     - npm install nedb
     - npm install request
   
-4. Replace *username* in the base_path attribute value on line 160 of index.js with your local username.
+4. Replace *username* in the base_path attribute value on line 154 of index.js with your local username.
 
 5. Still in the 'twitter-interval-motion-cam' directory, create a file called '.env'. Edit the file to include these variables: 
     - CONSUMER_KEY 
@@ -43,5 +43,5 @@ Instructions:
 Optional:
   - Change camera overlay label on line 65 of motion.conf
   - Change camera resolution at lines 53 and 56 of motion.conf
-  - Change how often it uploads a video on line 219 of index.js
-  - Change how long it detects motion for on line 208 of index.js
+  - Change how often it uploads a video on line 218 of index.js
+  - Change how long it detects motion for on line 202 of index.js
