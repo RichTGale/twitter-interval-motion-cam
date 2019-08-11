@@ -212,8 +212,7 @@ let run = function() {
 db.loadDatabase(error => {
   if (error) {
     console.error(`Failed to load database: ${error}`);
-  } else {
-    run();
-    setInterval(async () => {run();}, 1000*60*60*3);
   }
 });
+run();
+setInterval(async () => {run();}, 1000*60*60*3);
