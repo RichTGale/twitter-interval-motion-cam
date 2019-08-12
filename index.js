@@ -7,9 +7,30 @@ require('dotenv').config();
 
 let db = new Datastore('database.db');
 
+/*******************Updating status***********************/
+
+const updateStatus = function(text) {
+  return new Promise((resolve, reject) => {
+    const formData = {
+      status: text
+    };
+    const oAuthData = {
+      consumer_key: process.env.CONSUMER_KEY,
+      consumer_secret: process.env.CONSUMER_KEY_SECRET,
+      token: process.env.ACCESS_TOKEN,
+      token_secret: process.env.ACCESS_TOKEN_SECRET
+    };
+    request.post({ url: 'https://api.twitter.com/1.1/statuses/update.json', oauth: oAuthData,
+      form: formData, json: true }, function(err, response, body) {
+      if (err) { reject(err); }
+      resolve(body);
+    });
+  })
+}
+
 /*******************Uploading Media/Tweet******************/
 
-const tweet = function(access_token, text, file) {
+const tweetMedia = function(access_token, text, file) {
   return new Promise((resolve, reject) => {
     const stats = fs.statSync(file.base_path + file.path_media_ext);
     const formData = {
@@ -52,11 +73,10 @@ const tweet = function(access_token, text, file) {
                 };
                 // And the last step, we publish the video as a status update
                 request.post({ url: 'https://api.twitter.com/1.1/statuses/update.json', oauth: oAuthData,
-                  qs: qs, json: true }, function(err, response) {
+                  qs: qs, json: true }, function(err, response, body) {
                   if (err) {
                     reject(error);
                   } else {
-                    console.log(`THE FOOTAGE WAS TWEETED! =)`);
                     //Clear storage
                     glob(`${file.base_path}storage-temp/*`, function (err, files) {
                       if (err) {
@@ -69,7 +89,7 @@ const tweet = function(access_token, text, file) {
                           });
                           console.log('Temp storage file cleared');
                         }
-                        resolve('Success =)');
+                        resolve(body);
                       }
                     });
                   }
@@ -156,23 +176,26 @@ let run = function() {
     mimetype: 'video/mp4'
   }
   
+  // Create motion process
   let motionProcess = spawn('motion', ['-c', `${file.base_path}motion.conf`]);
   
+  // After 3 minutes, run this
   setTimeout(function(){
-      
+    
+    // Kill motion process
     console.log('Killing motion');
     motionProcess.kill();
 
     // Check if motion-detected footage was saved
-    glob(`${file.base_path}storage-temp/01.mp4`, function (err, files) {
+    glob(`${file.base_path}storage-temp/01.mp4`, async (err, files) => {
       if (err){
         console.error(err);
-      } else if (files.length > 0) {
+      } else if (files.length > 0) { // If footage was saved
         const keys = {
           token: process.env.ACCESS_TOKEN,
           token_secret: process.env.ACCESS_TOKEN_SECRET
         }
-        const text = 'Twitter cam test tweet';
+        const text = '#FISH_CAM01: Ash and Snow | ' + new Date().toLocaleString('AU') + ' | #livecam #video #aquarium #fish #pets #animals';
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
         const base64data = buff.toString('base64');
         const dbEntry = {
@@ -180,26 +203,33 @@ let run = function() {
           tweet: text,
           media: base64data
         }
-    
+        // Insert into database
         db.insert(dbEntry, async (err, response) => { 
           if (err) {
             console.error(err);
           } else {
             file.id = response._id;
-            await tweet(keys, text, file) // Upload to Twitter
+            await tweetMedia(keys, text, file) // Upload to Twitter
             .then(response => {
-              console.log(response);
+              console.log(response.created_at);
+              console.log(response.text);
             })
             .catch(err => {
               console.error(err);
             });
           }
         });
-      } else {
-        console.log('No motion detected');
+      } else { // If no footage was saved
+        const text = '#FISH_CAM01: No motion detected. Ash and Snow must be sleeping. | ' + new Date().toLocaleString('AU');
+        await updateStatus(text) // Tweet status update
+        .then(response => {
+          console.log(response.created_at);
+          console.log(response.text);
+        })
+        .catch(err => console.error(err));
       }
     });
-  }, 1000*60*5);
+  }, 1000*60*3);
 
   motionProcess.stdout.on('data', function(data) {
     console.log(`MOTION: ${data}`);
@@ -213,6 +243,6 @@ db.loadDatabase(error => {
   if (error) {
     console.error(`Failed to load database: ${error}`);
   }
+  run();
+  setInterval(async () => {run();}, 1000*60*60*3);
 });
-run();
-setInterval(async () => {run();}, 1000*60*60*3);
