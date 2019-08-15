@@ -195,7 +195,7 @@ let run = function() {
           token: process.env.ACCESS_TOKEN,
           token_secret: process.env.ACCESS_TOKEN_SECRET
         }
-        const text = '#FISH_CAM01: Ash and Snow | ' + new Date().toLocaleString('AU') + ' | #livecam #video #aquarium #fish #pets #animals';
+        const text = 'Twitter interval motion cam test';
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
         const base64data = buff.toString('base64');
         const dbEntry = {
