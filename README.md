@@ -33,7 +33,7 @@ Linux installation:
     and assign them the keys Twitter gave you after registering your app. Here's an example:
 
     CONSUMER_KEY=owi3h0r2q0hjje0i  
-    CONSUMER_KEY_SECRET=1qojer-0912e-1iwe-1q02e23098h12038j2  
+    CONSUMER_KEY_SECRET=1qojer0912e1iwe1q02e23098h12038j2  
     ACCESS_TOKEN=01qioje02w9ej01q92jee  
     ACCESS_TOKEN_SECRET=02i3j02qwij2d0iw2je0i2j03498u0w2rf2w  
 
