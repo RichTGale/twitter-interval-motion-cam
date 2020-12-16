@@ -55,4 +55,3 @@ Optional:
   - Change how often tweets are made (in milliseconds) on line 233 of index.js
   - Change the *text* variable on line 198 of index.js (Changes tweet text with video)
   - Change the *text* variable on line 224 of index.js (Changes tweet text if no video is created)
-  - Delete lines 223 to 231 (Doesn't tweet if no video is made)
