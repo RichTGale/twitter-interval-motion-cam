@@ -219,7 +219,8 @@ let run = function() {
             });
           }
         });
-      } else { // If no footage was saved
+      } 
+      else { // If no footage was saved
         const text = 'Testing interval motion camera - NO MOTION DETECTED OR VIDEO FILE NOT FOUND | ' + new Date().toLocaleString('AU');
         await updateStatus(text) // Tweet status update
         .then(response => {
