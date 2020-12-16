@@ -22,7 +22,7 @@ Linux installation:
     - npm install nedb
     - npm install request
   
-4. Replace *<username>* in the base_path attribute value on line 174 of index.js with your local username.
+4. Replace *username* in the base_path attribute value on line 174 of index.js with your local username.
 
 5. Still in the 'twitter-interval-motion-cam' directory, create a file and name it '.env'. Edit the file to include these variables: 
     - CONSUMER_KEY 
@@ -43,7 +43,7 @@ Linux installation:
 
 6. In the same directory, create a folder called 'storage-temp'.
 
-7. Replace *<username>* on line 450 of motion.conf with your username.
+7. Replace *username* on line 450 of motion.conf with your username.
   
 8. Plug in your camera. Make sure you only have 1 camera plugged in.
   
