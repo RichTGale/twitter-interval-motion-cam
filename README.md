@@ -51,6 +51,7 @@ Linux installation:
 
 Optional:
   - NOTE: Depending on your camera quality, you may want to play around with the "Motion Detection Settings", starting at line 191 in motion.conf
+  - NOTE: There is a mximum file size for video upload. Depending on the video length (this program defaults to 20 seconds) and quality, videos may or may not be uploaded to twitter. You can change the maximum video length at line 257 of motion.conf
   - Change camera overlay text on lines 405 and 410 of motion.conf
   - Change camera resolution at lines 100 and 103 of motion.conf
   - Change how often tweets are made (in milliseconds) on line 233 of index.js
