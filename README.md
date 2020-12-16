@@ -55,4 +55,4 @@ Optional:
   - Change how often tweets are made (in milliseconds) on line 233 of index.js
   - Change the *text* variable on line 198 of index.js (Changes tweet text with video)
   - Change the *text* variable on line 224 of index.js (Changes tweet text if no video is created)
-  - You can replace lines 223 to 231 of index.js with one line that says *else { run(); }*. This will make it so if motion is not detected, nothing is uploaded and the program restarts. By default, if no motion is detected or the program can't find the video file that has been recorded, a tweet will be tweeted saying something like "Testing motion cam | no video file found".
+  - You can replace lines 223 to 231 of index.js with one line that says *else { run(); }*. This will make it so if motion is not detected, nothing is uploaded and the program restarts. If you don't do this, if no motion is detected or the program can't find a video file that has been recorded, a tweet will be tweeted saying something like "Testing motion cam | no video file found".
