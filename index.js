@@ -171,7 +171,7 @@ const transferProcess = function(index, mediaId, file, fileSize, access_token, c
 let run = function() {
   
   let file = {
-    base_path: '/home/username/twitter-interval-motion-cam/',
+    base_path: '/home/<username>/twitter-interval-motion-cam/',
     path_media_ext: 'storage-temp/01.mp4',
     mimetype: 'video/mp4'
   }
@@ -179,7 +179,7 @@ let run = function() {
   // Create motion process
   let motionProcess = spawn('motion', ['-c', `${file.base_path}motion.conf`]);
   
-  // After 3 minutes, run this
+  // After n minutes, run this
   setTimeout(function(){
     
     // Kill motion process
@@ -195,7 +195,7 @@ let run = function() {
           token: process.env.ACCESS_TOKEN,
           token_secret: process.env.ACCESS_TOKEN_SECRET
         }
-        const text = 'Twitter interval motion cam test';
+        const text = 'Testing interval motion camera | ' + new Date().toLocaleString('AU');
         const buff = fs.readFileSync(`${file.base_path}${file.path_media_ext}`);
         const base64data = buff.toString('base64');
         const dbEntry = {
@@ -211,8 +211,8 @@ let run = function() {
             file.id = response._id;
             await tweetMedia(keys, text, file) // Upload to Twitter
             .then(response => {
-              console.log(response.created_at);
-              console.log(response.text);
+              console.log(response);
+              run();
             })
             .catch(err => {
               console.error(err);
@@ -220,16 +220,16 @@ let run = function() {
           }
         });
       } else { // If no footage was saved
-        const text = '#FISH_CAM01: No motion detected. Ash and Snow must be sleeping. | ' + new Date().toLocaleString('AU');
+        const text = 'Testing interval motion camera - NO MOTION DETECTED OR VIDEO FILE NOT FOUND | ' + new Date().toLocaleString('AU');
         await updateStatus(text) // Tweet status update
         .then(response => {
-          console.log(response.created_at);
-          console.log(response.text);
+          console.log(response);
+          run();
         })
         .catch(err => console.error(err));
       }
     });
-  }, 1000*60*3);
+  }, 1000*60);
 
   motionProcess.stdout.on('data', function(data) {
     console.log(`MOTION: ${data}`);
@@ -244,5 +244,4 @@ db.loadDatabase(error => {
     console.error(`Failed to load database: ${error}`);
   }
   run();
-  setInterval(async () => {run();}, 1000*60*60*3);
 });
