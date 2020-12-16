@@ -50,6 +50,7 @@ Linux installation:
 10. Wait a few minutes and and view your video on Twitter depending on whether motion was detected.
 
 Optional:
+  - NOTE: Depending on your camera quality, you may want to play around with the "Motion Detection Settings", starting at line 191 in motion.conf
   - Change camera overlay text on lines 405 and 410 of motion.conf
   - Change camera resolution at lines 100 and 103 of motion.conf
   - Change how often tweets are made (in milliseconds) on line 233 of index.js
