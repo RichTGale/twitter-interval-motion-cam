@@ -22,7 +22,7 @@ Linux installation:
     - npm install nedb
     - npm install request
   
-4. Replace *username* in the base_path attribute value on line 174 of index.js with your local username.
+4. Replace *username* in the base_path attribute value on line 174 of index.js with your username.
 
 5. Still in the 'twitter-interval-motion-cam' directory, create a file and name it '.env'. Edit the file to include these variables: 
     - CONSUMER_KEY 
