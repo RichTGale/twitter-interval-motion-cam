@@ -15,12 +15,10 @@ Linux installation:
     - cd /home/*username*/
     - git clone https://github.com/srcarry/twitter-interval-motion-cam.git
     - cd /home/*username*/twitter-interval-motion-cam/
-    - npm install child_process
-    - npm install dotenv
     - npm install fs-extra
     - npm install glob
-    - npm install nedb
     - npm install request
+    - npm install dotenv
   
 4. Replace *username* in the base_path attribute value on line 174 of index.js with your local username.
 

@@ -132,7 +132,7 @@ const tweetVideo = (access_token, text, file) =>
                                                 {
                                                     if (err) 
                                                     {
-                                                        reject(error);
+                                                        reject(err);
                                                     } 
                                                     else 
                                                     {
@@ -174,8 +174,8 @@ const transferProcess =
         // Once we have the copy, we open it
         const fd = fs.openSync(copyFileName, 'r');
 
-        let bytesRead, data, bufferLength = 50000000;
-        let buffer = new Buffer(100000000);
+        let bytesRead, data, bufferLength = 1000000;
+        let buffer = Buffer.alloc(100000000);
 
         const startOffset = index * bufferLength;
         const length = startOffset + bufferLength > fileSize ? 
@@ -229,7 +229,7 @@ const transferProcess =
                             } 
                             else if (completed) 
                             {
-                                resolve(null);
+                                resolve();
                             } 
                             else 
                             { 
@@ -252,7 +252,7 @@ let run = function()
 {
   
     const file = {
-        base_path: '/home/username/twitter-interval-motion-cam/',
+        base_path: '/home/rg/Programming/javascript/twitter-interval-motion-cam/',
         path_media_ext: 'storage-temp/01.mp4',
         mimetype: 'video/mp4'
     };
@@ -287,13 +287,13 @@ let run = function()
             {
                 text = 'Testing interval motion camera | ' 
                         + new Date().toLocaleString('AU');
-                file.id = response._id;
             
                 // Uploading video to Twitter
                 await tweetVideo(KEYS, text, file) 
                 .then(response => 
                     {
                         console.log(response);
+
                         // Clearing storage
                         glob(`${file.base_path}storage-temp/*`, (err, files) =>
                             {
@@ -344,7 +344,7 @@ let run = function()
                 ).catch(err => console.error(err));
             }
         });
-  }, 1000 * 60 * 2);
+  }, 1000 * 60);
 
     motion.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
@@ -359,6 +359,7 @@ let run = function()
     });
 }
 
+run();
 setInterval(() => {
   run();
 }, 1000 * 60 * 30);
