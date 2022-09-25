@@ -31,8 +31,14 @@ const tweetText= function(text)
                 }, 
                 (err, response, body) =>
                 {
-                    if (err) { reject(err); }
-                    else { resolve(body); }
+                    if (err) 
+                    { 
+                        reject(err); 
+                    }
+                    else 
+                    { 
+                        resolve(body); 
+                    }
                 }
             );
         }
@@ -70,7 +76,7 @@ const tweetVideo = (access_token, text, file) =>
                     form: formData, 
                     json: true 
                 }, 
-                (err, response, body) => 
+                async (err, response, body) => 
                 {
                     if (err) 
                     {
@@ -140,7 +146,6 @@ const tweetVideo = (access_token, text, file) =>
                             }
                         ).catch(err => 
                             {
-                                console.error(err);
                                 reject(err);
                             }
                         ) 
@@ -157,84 +162,86 @@ const tweetVideo = (access_token, text, file) =>
  * Processes each part of the video until its end.
  */
 const transferProcess = 
-    function(index, mediaId, file, fileSize, access_token, callback) 
+    function(index, mediaId, file, fileSize, access_token) 
 {
+    return new Promise((resolve, reject) => 
+    {
+        // First we generate a copy of the file in order to be independent to the original file
+        // because it can have problems when opening it at the same time from other file
+        const copyFileName = file.base_path + file.path_media_ext + '-twitter';
+        fs.copySync(file.base_path + file.path_media_ext, copyFileName);
 
-    // First we generate a copy of the file in order to be independent to the original file
-    // because it can have problems when opening it at the same time from other file
-    const copyFileName = file.base_path + file.path_media_ext + '-twitter';
-    fs.copySync(file.base_path + file.path_media_ext, copyFileName);
+        // Once we have the copy, we open it
+        const fd = fs.openSync(copyFileName, 'r');
 
-    // Once we have the copy, we open it
-    const fd = fs.openSync(copyFileName, 'r');
+        let bytesRead, data, bufferLength = 50000000;
+        let buffer = new Buffer(100000000);
 
-    let bytesRead, data, bufferLength = 10000000;
-    let buffer = new Buffer(100000000);
+        const startOffset = index * bufferLength;
+        const length = startOffset + bufferLength > fileSize ? 
+                            fileSize - startOffset : bufferLength;
 
-    const startOffset = index * bufferLength;
-    const length = startOffset + bufferLength > fileSize ? 
-                        fileSize - startOffset : bufferLength;
+        // We read the amount of bytes specified from startOffset until length
+        bytesRead = fs.readSync(fd, buffer, startOffset, length, null);
 
-    // We read the amount of bytes specified from startOffset until length
-    bytesRead = fs.readSync(fd, buffer, startOffset, length, null);
+        // Here, completed tells us that we are transferring the last part or not
+        const completed  = bytesRead < bufferLength;
+        data = completed ? buffer.slice(0, bytesRead) : buffer;
 
-    // Here, completed tells us that we are transferring the last part or not
-    const completed  = bytesRead < bufferLength;
-    data = completed ? buffer.slice(0, bytesRead) : buffer;
+        // We generate a file with the recently read data, and with a name of copyFileName-chunked-0
+        const chunkFileName = copyFileName + '-chunked-' + index;
 
-    // We generate a file with the recently read data, and with a name of copyFileName-chunked-0
-    const chunkFileName = copyFileName + '-chunked-' + index;
-
-    // We create the file so then we can read it and send it
-    fs.writeFile(chunkFileName, data, (err) =>
-        {
-            if (err) {
-                callback(err);
-            } 
-            else 
+        // We create the file so then we can read it and send it
+        fs.writeFile(chunkFileName, data, (err) =>
             {
-                const formData = {
-                    command: 'APPEND',
-                    media_id: mediaId,
-                    segment_index: index
-                };
-                formData.media = fs.createReadStream(chunkFileName);
-                const oAuthData = {
-                    consumer_key: process.env.CONSUMER_KEY,
-                    consumer_secret: process.env.CONSUMER_KEY_SECRET,
-                    token: process.env.ACCESS_TOKEN,
-                    token_secret: process.env.ACCESS_TOKEN_SECRET
-                };
-                // Once we have the file written, we upload it
-                request.post(
-                    { 
-                        url: 'https://upload.twitter.com/1.1/media/upload.json', 
-                        oauth: oAuthData,
-                        formData: formData, 
-                        json: true 
-                    }, 
-                    (err, response) => 
-                    {
-                        // If there was an error or the reading process of the file has ended, 
-                        // we go back to the initial process to finalize the video upload
-                        if (err) 
-                        {
-                            callback(err);
-                        } 
-                        else if (completed) 
-                        {
-                            callback(null);
-                        } 
-                        else 
+                if (err) {
+                    reject(err);
+                } 
+                else 
+                {
+                    const formData = {
+                        command: 'APPEND',
+                        media_id: mediaId,
+                        segment_index: index
+                    };
+                    formData.media = fs.createReadStream(chunkFileName);
+                    const oAuthData = {
+                        consumer_key: process.env.CONSUMER_KEY,
+                        consumer_secret: process.env.CONSUMER_KEY_SECRET,
+                        token: process.env.ACCESS_TOKEN,
+                        token_secret: process.env.ACCESS_TOKEN_SECRET
+                    };
+                    // Once we have the file written, we upload it
+                    request.post(
                         { 
-                            // Else, we must continue reading the file, incrementing the reading index
-                            transferProcess(index + 1, mediaId, file, fileSize, access_token, callback);
+                            url: 'https://upload.twitter.com/1.1/media/upload.json', 
+                            oauth: oAuthData,
+                            formData: formData, 
+                            json: true 
+                        }, 
+                        async (err, response) => 
+                        {
+                            // If there was an error or the reading process of the file has ended, 
+                            // we go back to the initial process to finalize the video upload
+                            if (err) 
+                            {
+                                reject(err);
+                            } 
+                            else if (completed) 
+                            {
+                                resolve(null);
+                            } 
+                            else 
+                            { 
+                                // Else, we must continue reading the file, incrementing the reading index
+                                await transferProcess(index + 1, mediaId, file, fileSize, access_token);
+                            }
                         }
-                    }
-                );
+                    );
+                }
             }
-        }
-    );
+        );
+    });
 };
 
 
