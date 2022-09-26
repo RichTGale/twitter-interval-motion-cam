@@ -1,9 +1,8 @@
-const { spawn } = require('node:child_process');
+const { spawn } = require('child_process');
 const fs = require('fs-extra');
 const request = require('request');
 const glob = require('glob');
 const splitFile = require('split-file');
-const { reject } = require('bluebird');
 require('dotenv').config();
 
 /**
@@ -151,7 +150,7 @@ const finaliseMediaUpload = (mediaId, oAuthData) =>
     );
 };
 
-const statusMediaUpload = (mediaId, secs_to_wait, oAuthData) =>
+const statusMediaUpload = (mediaId, secsToWait, oAuthData) =>
 {
     return new Promise((resolve, reject) =>
         {
@@ -159,37 +158,42 @@ const statusMediaUpload = (mediaId, secs_to_wait, oAuthData) =>
                 command: 'STATUS',
                 media_id: mediaId,
             };
-            request.get(
-                { 
-                    url: 'https://upload.twitter.com/1.1/media/upload.json', 
-                    oauth: oAuthData,
-                    form: formData, 
-                    json: true 
-                }, 
-                (err, response, body) => 
+            let intervalId = setInterval(() =>
                 {
-                    if (err) 
-                    {
-                        reject(err);
-                    } 
-                    else if (body.error) 
-                    {
-                        reject(body.error);
-                    } 
-                    else
-                    {
-                        let intervalId = setInterval(() =>
+                    request.get(
+                        { 
+                            url: 'https://upload.twitter.com/1.1/media/upload.json', 
+                            oauth: oAuthData,
+                            form: formData, 
+                            json: true 
+                        }, 
+                        (err, response, body) => 
+                        {
+                            if (err) 
+                            {
+                                reject(err);
+                            } 
+                            else if (body.error) 
+                            {
+                                reject(body.error);
+                            } 
+                            else
                             {
                                 if (body.processing_info.state != 'pending' && body.processing_info.state != 'in_progress')
                                 {
                                     clearInterval(intervalId);
-                                    resolve(body.processing_info);
+                                    resolve(body);
                                 }
-                            },
-                            1000 * secs_to_wait
-                        );
-                    }
-                }
+                                else
+                                {
+                                    console.log("Upload percent: " + body.processing_info.progress_percent);
+                                    secsToWait = body.processing_info.check_after_secs; 
+                                }
+                            }
+                        }
+                    );
+                },
+                1000 * secsToWait
             );
         }
     );
@@ -267,17 +271,22 @@ const tweetVideo = (file, text) =>
                     await chunkMediaUpload(mediaId, media, name, oAuthData);
                 }
                 response = await finaliseMediaUpload(mediaId, oAuthData);
-                state = response.processing_info.state;
+                
                 if (response.processing_info)
                 {
                     response = await statusMediaUpload(mediaId, response.processing_info.check_after_secs, oAuthData);
-                    state = response.state;
+                    state = response.processing_info.state;
                     console.log('PROCESSING_INFO:');
-                    console.log(response);
+                    console.log(response.processing_info);
                 }
-                if (state != 'failed')
+                if (state == 'succeeded')
                 {
                     response = await publishMediaUpload(mediaId, text, oAuthData);
+                }
+                else
+                {
+                    state = 'failed';
+                    console.log(state);
                 }
             }
             catch (err)
@@ -297,7 +306,7 @@ let run = function()
 {
   
     const file = {
-        base_path: '/home/rg/Programming/javascript/twitter-interval-motion-cam/',
+        base_path: '/home/rg/Programming/twitter-interval-motion-cam/',
         path_media_ext: 'storage-temp/01.mp4',
         mimetype: 'video/mp4'
     };
@@ -339,34 +348,34 @@ let run = function()
                     {
                         console.log(response);
 
-                        // // Clearing storage
-                        // glob(`${file.base_path}storage-temp/*`, (err, files) =>
-                        //     {
-                        //         if (err) 
-                        //         {
-                        //             console.error(err);
-                        //         } 
-                        //         else 
-                        //         {
-                        //             for (let file of files) 
-                        //             {
-                        //                 let rm = spawn('rm', [file]);
+                        // Clearing storage
+                        glob(`${file.base_path}storage-temp/*`, (err, files) =>
+                           {
+                                if (err) 
+                                {
+                                   console.error(err);
+                                } 
+                                else 
+                                {
+                                    for (let file of files) 
+                                    {
+                                        let rm = spawn('rm', [file]);
                                         
-                        //                 rm.stdout.on('data', (data) => {
-                        //                     console.log(`stdout: ${data}`);
-                        //                 });
+                                        rm.stdout.on('data', (data) => {
+                                            console.log(`stdout: ${data}`);
+                                        });
                                     
-                        //                 rm.stderr.on('data', (data) => {
-                        //                     console.error(`stderr: ${data}`);
-                        //                 });
+                                        rm.stderr.on('data', (data) => {
+                                            console.error(`stderr: ${data}`);
+                                        });
                                     
-                        //                 rm.on('close', (code) => {
-                        //                     console.log(`rm exited with code ${code}`);
-                        //                 });
-                        //             }
-                        //         }
-                        //     }
-                        // );
+                                        rm.on('close', (code) => {
+                                            console.log(`rm exited with code ${code}`);
+                                        });
+                                    }
+                                }
+                            }
+                        );
                     }
                 ).catch(err => 
                     {
