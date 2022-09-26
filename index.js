@@ -2,6 +2,8 @@ const { spawn } = require('node:child_process');
 const fs = require('fs-extra');
 const request = require('request');
 const glob = require('glob');
+const splitFile = require('split-file');
+const { reject } = require('bluebird');
 require('dotenv').config();
 
 /**
@@ -45,29 +47,18 @@ const tweetText= function(text)
     )
 };
 
-/**
- * Tweets a video to Twitter.
- */
-
-const tweetVideo = (access_token, text, file) =>
+const initMediaUpload = (file, oAuthData, fileSize) =>
 {
-    return new Promise((resolve, reject) => 
+    return new Promise((resolve, reject) =>
         {
-            const stats = fs.statSync(file.base_path + file.path_media_ext);
             // The form data
             const formData = {
                 command: 'INIT',
+                total_bytes: fileSize,
                 media_type: file.mimetype,
-                total_bytes: stats.size
+                media_category: 'tweet_video'
             };
-            // The authentication data
-            const oAuthData = {
-                consumer_key: process.env.CONSUMER_KEY,
-                consumer_secret: process.env.CONSUMER_KEY_SECRET,
-                token: process.env.ACCESS_TOKEN,
-                token_secret: process.env.ACCESS_TOKEN_SECRET
-            };
-            
+
             // Sending the video size
             request.post(
                 { 
@@ -76,7 +67,150 @@ const tweetVideo = (access_token, text, file) =>
                     form: formData, 
                     json: true 
                 }, 
-                async (err, response, body) => 
+                (err, response, body) => 
+                {
+                    if (err)
+                    {
+                        reject(err);
+                    }
+                    else
+                    {
+                        resolve(body.media_id_string);
+                    }
+                }
+            );
+        }
+    );
+}
+
+const chunkMediaUpload = (mediaId, media, index, oAuthData) =>
+{
+    return new Promise((resolve, reject) => 
+        {
+            const formData = {
+                command: 'APPEND',
+                media_id: mediaId,
+                media: media, 
+                segment_index: index
+            };
+            request.post(
+                { 
+                    url: 'https://upload.twitter.com/1.1/media/upload.json', 
+                    oauth: oAuthData,
+                    formData: formData, 
+                    json: true 
+                }, 
+                (err, response, body) => 
+                {
+                    if (err) 
+                    {
+                        reject(err);
+                    } 
+                    else
+                    {
+                        resolve();
+                    } 
+                }
+            );
+        }
+    );
+};
+
+const finaliseMediaUpload = (mediaId, oAuthData) =>
+{
+    return new Promise((resolve, reject) =>
+        {
+            const formData = {
+                command: 'FINALIZE',
+                media_id: mediaId,
+            };
+            request.post(
+                { 
+                    url: 'https://upload.twitter.com/1.1/media/upload.json', 
+                    oauth: oAuthData,
+                    form: formData, 
+                    json: true 
+                }, 
+                (err, response, body) => 
+                    {
+                        if (err) 
+                        {
+                            reject(err);
+                        } 
+                        else if (body.error) 
+                        {
+                            reject(body.error);
+                        } 
+                        else 
+                        {
+                            resolve(body);
+                        }
+                    }
+                );
+        }
+    );
+};
+
+const statusMediaUpload = (mediaId, secs_to_wait, oAuthData) =>
+{
+    return new Promise((resolve, reject) =>
+        {
+            const formData = {
+                command: 'STATUS',
+                media_id: mediaId,
+            };
+            request.get(
+                { 
+                    url: 'https://upload.twitter.com/1.1/media/upload.json', 
+                    oauth: oAuthData,
+                    form: formData, 
+                    json: true 
+                }, 
+                (err, response, body) => 
+                {
+                    if (err) 
+                    {
+                        reject(err);
+                    } 
+                    else if (body.error) 
+                    {
+                        reject(body.error);
+                    } 
+                    else
+                    {
+                        let intervalId = setInterval(() =>
+                            {
+                                if (body.processing_info.state != 'pending' && body.processing_info.state != 'in_progress')
+                                {
+                                    clearInterval(intervalId);
+                                    resolve(body.processing_info);
+                                }
+                            },
+                            1000 * secs_to_wait
+                        );
+                    }
+                }
+            );
+        }
+    );
+};
+
+const publishMediaUpload = (mediaId, text, oAuthData) =>
+{
+    return new Promise((resolve, reject) =>
+        {
+            const qs = {
+                status: text,
+                media_ids: mediaId,
+            };
+            request.post(
+                { 
+                    url: 'https://api.twitter.com/1.1/statuses/update.json', 
+                    oauth: oAuthData,
+                    qs: qs, 
+                    json: true 
+                }, 
+                (err, response, body) => 
                 {
                     if (err) 
                     {
@@ -84,164 +218,75 @@ const tweetVideo = (access_token, text, file) =>
                     } 
                     else 
                     {
-                        // Starting the chunked video transfer
-                        await transferProcess(
-                            0, 
-                            body.media_id_string, 
-                            file, stats.size, 
-                            access_token
-                        ).then(() =>
-                            {
-                                const formData = {
-                                    command: 'FINALIZE',
-                                    media_id: body.media_id_string
-                                };
-                                // Once the transfer ended, we finalize it
-                                request.post(
-                                    { 
-                                        url: 'https://upload.twitter.com/1.1/media/upload.json', 
-                                        oauth: oAuthData,
-                                        form: formData, 
-                                        json: true 
-                                    }, 
-                                    (err, response, body) => 
-                                    {
-                                        if (err) 
-                                        {
-                                            reject(err);
-                                        } 
-                                        else if (body.error) 
-                                        {
-                                            reject(body.error);
-                                        } 
-                                        else 
-                                        {
-                                            const qs = {
-                                                status: text,
-                                                media_ids: body.media_id_string
-                                            };
-                                            // Publishing the video as a status update
-                                            request.post(
-                                                { 
-                                                    url: 'https://api.twitter.com/1.1/statuses/update.json', 
-                                                    oauth: oAuthData,
-                                                    qs: qs, 
-                                                    json: true 
-                                                }, 
-                                                (err, response, body) => 
-                                                {
-                                                    if (err) 
-                                                    {
-                                                        reject(err);
-                                                    } 
-                                                    else 
-                                                    {
-                                                        resolve(body);
-                                                    }
-                                                }
-                                            );
-                                        }
-                                    }
-                                );
-                            }
-                        ).catch(err => 
-                            {
-                                reject(err);
-                            }
-                        ) 
-                                
+                        resolve(body);
                     }
                 }
-            ); 
+            );
         }
     );
-};
-
+}
 
 /**
- * Processes each part of the video until its end.
+ * Tweets a video to Twitter.
  */
-const transferProcess = 
-    function(index, mediaId, file, fileSize, access_token) 
+
+const tweetVideo = (file, text) =>
 {
-    return new Promise((resolve, reject) => 
-    {
-        // First we generate a copy of the file in order to be independent to the original file
-        // because it can have problems when opening it at the same time from other file
-        const copyFileName = file.base_path + file.path_media_ext + '-twitter';
-        fs.copySync(file.base_path + file.path_media_ext, copyFileName);
+    return new Promise(async (resolve, reject) => 
+        {
+            // The authentication data
+            const oAuthData = {
+                consumer_key: process.env.CONSUMER_KEY,
+                consumer_secret: process.env.CONSUMER_KEY_SECRET,
+                token: process.env.ACCESS_TOKEN,
+                token_secret: process.env.ACCESS_TOKEN_SECRET
+            };
+            let filestats;
+            let fileSize = 0;
+            let names = [];
+            let mediaId;
+            let media;
+            let response;
+            let state;
+            
+            try {
 
-        // Once we have the copy, we open it
-        const fd = fs.openSync(copyFileName, 'r');
+                // filestats = await fs.stat(file.base_path  + file.path_media_ext);
+                // fileSize += filestats.size;
 
-        let bytesRead, data, bufferLength = 1000000;
-        let buffer = Buffer.alloc(100000000);
-
-        const startOffset = index * bufferLength;
-        const length = startOffset + bufferLength > fileSize ? 
-                            fileSize - startOffset : bufferLength;
-
-        // We read the amount of bytes specified from startOffset until length
-        bytesRead = fs.readSync(fd, buffer, startOffset, length, null);
-
-        // Here, completed tells us that we are transferring the last part or not
-        const completed  = bytesRead < bufferLength;
-        data = completed ? buffer.slice(0, bytesRead) : buffer;
-
-        // We generate a file with the recently read data, and with a name of copyFileName-chunked-0
-        const chunkFileName = copyFileName + '-chunked-' + index;
-
-        // We create the file so then we can read it and send it
-        fs.writeFile(chunkFileName, data, (err) =>
-            {
-                if (err) {
-                    reject(err);
-                } 
-                else 
+                names = await splitFile.splitFileBySize(file.base_path  + file.path_media_ext, 5000000);
+                for (let name = 0; name < names.length; name++)
                 {
-                    const formData = {
-                        command: 'APPEND',
-                        media_id: mediaId,
-                        segment_index: index
-                    };
-                    formData.media = fs.createReadStream(chunkFileName);
-                    const oAuthData = {
-                        consumer_key: process.env.CONSUMER_KEY,
-                        consumer_secret: process.env.CONSUMER_KEY_SECRET,
-                        token: process.env.ACCESS_TOKEN,
-                        token_secret: process.env.ACCESS_TOKEN_SECRET
-                    };
-                    // Once we have the file written, we upload it
-                    request.post(
-                        { 
-                            url: 'https://upload.twitter.com/1.1/media/upload.json', 
-                            oauth: oAuthData,
-                            formData: formData, 
-                            json: true 
-                        }, 
-                        async (err, response) => 
-                        {
-                            // If there was an error or the reading process of the file has ended, 
-                            // we go back to the initial process to finalize the video upload
-                            if (err) 
-                            {
-                                reject(err);
-                            } 
-                            else if (completed) 
-                            {
-                                resolve();
-                            } 
-                            else 
-                            { 
-                                // Else, we must continue reading the file, incrementing the reading index
-                                await transferProcess(index + 1, mediaId, file, fileSize, access_token);
-                            }
-                        }
-                    );
+                    filestats = await fs.stat(names[name]);
+                    fileSize += filestats.size;
+                }
+                mediaId = await initMediaUpload(file, oAuthData, fileSize);
+                for (let name = 0; name < names.length; name++)
+                {
+                    media = fs.createReadStream(names[name]);
+                    await chunkMediaUpload(mediaId, media, name, oAuthData);
+                }
+                response = await finaliseMediaUpload(mediaId, oAuthData);
+                state = response.processing_info.state;
+                if (response.processing_info)
+                {
+                    response = await statusMediaUpload(mediaId, response.processing_info.check_after_secs, oAuthData);
+                    state = response.state;
+                    console.log('PROCESSING_INFO:');
+                    console.log(response);
+                }
+                if (state != 'failed')
+                {
+                    response = await publishMediaUpload(mediaId, text, oAuthData);
                 }
             }
-        );
-    });
+            catch (err)
+            {
+                reject(err);
+            }
+            resolve(response);
+        }
+    );
 };
 
 
@@ -289,39 +334,39 @@ let run = function()
                         + new Date().toLocaleString('AU');
             
                 // Uploading video to Twitter
-                await tweetVideo(KEYS, text, file) 
+                await tweetVideo(file, text) 
                 .then(response => 
                     {
                         console.log(response);
 
-                        // Clearing storage
-                        glob(`${file.base_path}storage-temp/*`, (err, files) =>
-                            {
-                                if (err) 
-                                {
-                                    console.error(err);
-                                } 
-                                else 
-                                {
-                                    for (let file of files) 
-                                    {
-                                        let rm = spawn('rm', [file]);
+                        // // Clearing storage
+                        // glob(`${file.base_path}storage-temp/*`, (err, files) =>
+                        //     {
+                        //         if (err) 
+                        //         {
+                        //             console.error(err);
+                        //         } 
+                        //         else 
+                        //         {
+                        //             for (let file of files) 
+                        //             {
+                        //                 let rm = spawn('rm', [file]);
                                         
-                                        rm.stdout.on('data', (data) => {
-                                            console.log(`stdout: ${data}`);
-                                        });
+                        //                 rm.stdout.on('data', (data) => {
+                        //                     console.log(`stdout: ${data}`);
+                        //                 });
                                     
-                                        rm.stderr.on('data', (data) => {
-                                            console.error(`stderr: ${data}`);
-                                        });
+                        //                 rm.stderr.on('data', (data) => {
+                        //                     console.error(`stderr: ${data}`);
+                        //                 });
                                     
-                                        rm.on('close', (code) => {
-                                            console.log(`rm exited with code ${code}`);
-                                        });
-                                    }
-                                }
-                            }
-                        );
+                        //                 rm.on('close', (code) => {
+                        //                     console.log(`rm exited with code ${code}`);
+                        //                 });
+                        //             }
+                        //         }
+                        //     }
+                        // );
                     }
                 ).catch(err => 
                     {
