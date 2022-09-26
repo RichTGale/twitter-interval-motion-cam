@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const request = require('request');
 const glob = require('glob');
 const splitFile = require('split-file');
-//require('dotenv').config();
+require('dotenv').config();
 
 /**
  * Tweets text to Twitter.
@@ -207,7 +207,7 @@ const tweetVideo = (file, text, oAuthData) => {
     );
 };
 
-const removeTempFiles = () => {
+const removeTempFiles = (file) => {
     let rm;
 
     return new Promise((resolve, reject) => {
@@ -242,7 +242,7 @@ const removeTempFiles = () => {
 let run = function() 
 {
     const file = {
-        base_path: '/home/rg/Programming/javascript/twitter-interval-motion-cam/',
+        base_path: '/home/rg/Programming/twitter-interval-motion-cam/',
         path_media_ext: 'storage-temp/01.mp4',
         mimetype: 'video/mp4'
     };
@@ -277,7 +277,7 @@ let run = function()
                     // Uploading video to Twitter
                     response = await tweetVideo(file, statusText, oAuthData);
                     console.log(response);
-                    await removeTempFiles();
+                    await removeTempFiles(file);
                 }
                 catch (err) {
                     console.error(err);
@@ -297,7 +297,7 @@ let run = function()
                 }
             }
         });
-    }, 1000 * 60);
+    }, 1000 * 60 * 50);
 
     motion.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
@@ -315,5 +315,5 @@ let run = function()
 run();
 setInterval(() => {
   run();
-}, 1000 * 60 * 30);
+}, 1000 * 60 * 60);
 
