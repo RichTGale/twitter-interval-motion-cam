@@ -25,8 +25,6 @@ $ ./install
 5. In the ```twitter-interval-motion-cam``` directory, there is a file called ```.env```. 
 Fill in the ```.env``` file with your Twitter authenitication details. Here's an example:
 ```
-twitter-interval-motion-cam/.env
-----------------------------------------------------------------------
 CONSUMER_KEY=q23yr203rgo23fu023fug3 
 CONSUMER_KEY_SECRET=23ruh230r8ug038reghyg4308g34tuhyb
 ACCESS_TOKEN=we8yug8uydg2q83ueh2937he293r23r
