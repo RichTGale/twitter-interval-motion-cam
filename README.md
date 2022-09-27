@@ -9,16 +9,17 @@ Records motion detected video at intervals and uploads it to twitter.
 
 3. Open a command prompt and enter the following commands:
 ```
-git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
-cd twitter-interval-motion-cam
+$ git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
+
+$ cd twitter-interval-motion-cam
 ```
 then you may have to make the install file executable:
 ```
-chmod +x ./install
+$ chmod +x ./install
 ```
 then:
 ```
-./install
+$ ./install
 ```
 
 5. Fill in the ```.env``` file with your Twitter authenitication details. Here's an example:
