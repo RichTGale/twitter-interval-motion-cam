@@ -47,7 +47,7 @@ const getDirContents = (dir) => {
  */                              
 let run = function() {
     const videoFile = {
-        path_base: '/home/rg/Programming/twitter-interval-motion-cam/',
+        path_base: '/home/rg/Programming/javascript/twitter-interval-motion-cam/',
         path_extn: 'storage-temp/01.mp4',
         mimetype: 'video/mp4'
     };

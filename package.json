@@ -16,11 +16,5 @@
   "author": "Richard Gale",
   "license": "AGPL-3.0",
   "dependencies": {
-    "child_process": "^1.0.2",
-    "dotenv": "^16.0.2",
-    "fs-extra": "^10.1.0",
-    "glob": "^8.0.3",
-    "request": "^2.88.2",
-    "split-file": "^2.3.0"
   }
 }
