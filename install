@@ -1,7 +1,16 @@
 #!/bin/bash
 
+# Installing npm packages
 npm install glob
 npm install dotenv
 npm install request
 npm install split-file
 npm install fs-extra
+
+# Creating a directory to contain media
+mkdir ./media
+
+# Creating an incomplete .env file
+touch ./.env
+echo 'CONSUMER_KEY=\nCONSUMER_KEY_SECRET=\nACCESS_TOKEN\nACCESS_TOKEN_SECRET=\n' >> ./.env
+

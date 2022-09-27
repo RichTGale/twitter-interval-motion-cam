@@ -1,42 +1,42 @@
-const { spawn } = require('node:child_process');
-const glob = require('glob');
-require('dotenv').config();
+const { spawn } = require( 'node:child_process' );
+const glob = require( 'glob' );
+require( 'dotenv' ).config();
 
-const Tweeter = require('./Tweeter.js');
+const Tweeter = require( './Tweeter.js' );
 
-const deleteDirContents = (dir) => {
+const deleteDirContents = ( dir ) => {
     let rm;
 
-    return new Promise((resolve, reject) => {
-        glob(dir, (err, files) => {
-            if (err) { reject(err); } 
+    return new Promise( ( resolve, reject ) => {
+        glob( dir, ( err, files ) => {
+            if ( err ) { reject( err ); } 
 
-            for (let file = 0; file < files.length; file++) {
+            for ( let file = 0; file < files.length; file++ ) {
 
                 // Deleting file
-                rm = spawn('rm', [files[file]]);
+                rm = spawn( 'rm', [ files[ file ] ] );
                 
                 // Printing process info
-                rm.stdout.on('data', (data) => {
-                    console.log(`stdout: ${data}`);
+                rm.stdout.on( 'data', ( data ) => {
+                    console.log( `stdout: ${ data }` );
                 });
-                rm.stderr.on('data', (data) => {
-                    console.error(`stderr: ${data}`);
+                rm.stderr.on( 'data', ( data ) => {
+                    console.error( `stderr: ${ data }` );
                 });
-                rm.on('close', (code) => {
-                    console.log(`rm exited with code ${code}`);
+                rm.on('close', ( code ) => {
+                    console.log( `rm exited with code ${ code }` );
                 });     
             }
-            resolve(`The contents of ${dir} was deleted.`);
+            resolve( `The contents of ${ dir } was deleted.` );
         } );
     } );
 };
 
-const getDirContents = (dir) => {
-    return new Promise((resolve, reject) => {
-        glob(dir, (err, files) => {
-            if (err) { reject(err); } 
-            resolve(files);
+const getDirContents = ( dir ) => {
+    return new Promise( ( resolve, reject ) => {
+        glob( dir, ( err, files ) => {
+            if ( err ) { reject( err ); } 
+            resolve( files );
         } );
     } );
 };
@@ -46,14 +46,11 @@ const getDirContents = (dir) => {
  * Runs the Twitter bot.
  */                              
 let run = function() {
-    const videoFile = {
-        path_base: '/home/rg/Programming/javascript/twitter-interval-motion-cam/',
-        path_extn: 'storage-temp/01.mp4',
-        mimetype: 'video/mp4'
-    };
+
+    const MOTION_CONFIG_FILE = './motion.conf';
 
     // Spawning motion process to record a motion-detected video
-    const motion = spawn('motion', ['-c', `${videoFile.path_base}motion.conf`]);
+    const motion = spawn('motion', ['-c', MOTION_CONFIG_FILE] );
 
     // Printing motion-process information
     motion.stdout.on('data', (data) => {
@@ -73,67 +70,77 @@ let run = function() {
         motion.kill();
         console.log("Waiting for the motion process to exit...");
 
-        setTimeout(async () => {
-            let videofiles;
-            let videoInfo;
-            let statusText;
-            const oAuthData = {
+        setTimeout( async () => {
+
+            const O_AUTH_INFO = {
                 consumer_key: process.env.CONSUMER_KEY,
                 consumer_secret: process.env.CONSUMER_KEY_SECRET,
                 token: process.env.ACCESS_TOKEN,
                 token_secret: process.env.ACCESS_TOKEN_SECRET
             };
-            const tweeter = new Tweeter(oAuthData);
+            const TWEETER = new Tweeter(O_AUTH_INFO);
+            const MEDIA_DIR = './media';
+            let videofiles;
+            let statusText;
+            let mediaFile = {
+                path: '',
+                mimetype: 'video/mp4',
+                media_category: 'tweet_video',
+                media_id: '',
+                state: ''
+            };
+            
 
             try {
-                videofiles = await getDirContents(`${videoFile.path_base}storage-temp/*`);
+                videofiles = await getDirContents( MEDIA_DIR );
                 if (videofiles.length > 0)
                 {
-                    videoInfo = await tweeter.prepVideo(videoFile);
-                    switch (videoInfo.state) {
+                    mediaFile.path = videoFiles[0];
+                    mediaFile = await TWEETER.prepVideo( mediaFile );
+                    switch ( mediaFile.state ) {
                         case 'succeeded':
                             statusText = 'Budgie Box Cam '
-                                    + '| Rachael and Roger | '
-                                    + new Date().toLocaleString('AU');
+                                        + '| Rachael and Roger | '
+                                        + new Date().toLocaleString( 'AU' );
                             console.log(
-                                await tweeter.tweetTextAndVideo(
+                                await TWEETER.tweetTextAndVideo(
                                                 statusText, 
-                                                videoInfo.ID
+                                                mediaFile.media_id
                                                 )
                             );
                             break;
                         case 'failed':
-                            console.log("The video failed to upload");
+                            console.log( "The video failed to upload" );
                             break;
                     }
                     console.log(
-                        await deleteDirContents(`${videoFile.path_base}storage-temp/*`)
+                        await deleteDirContents( MEDIA_DIR )
                     );
                 }
                 else {
                     statusText = 'Budgie Box Cam '
-                    + '| Rachael and Roger '
-                    + '| NO MOTION DETECTED | ' 
-                    + new Date().toLocaleString('AU');
+                                + '| Rachael and Roger '
+                                + '| NO MOTION DETECTED | ' 
+                                + new Date().toLocaleString('AU');
 
                     try {
-                        console.log( await tweeter.tweetText(statusText) );
+                        console.log( await TWEETER.tweetText( statusText ) );
                     }
-                    catch (err) {
-                        console.error(err);
+                    catch ( err ) {
+                        console.error( err );
                     }
                 }
             }
-            catch (err) {
-                console.error(err);
+            catch ( err ) {
+                console.error( err );
             }
 
-        }, 1000 * 30);
-    }, (1000 * 60 * 60 * 2) + (1000 * 50 * 45) );
+        }, 1000 * 30 );
+    }, ( 1000 * 60 * 60 * 2 ) + ( 1000 * 50 * 45 ) );
 }
 
 run();
-setInterval(() => {
+setInterval( () => {
   run();
-}, 1000 * 60 * 60 * 3);
+}, 1000 * 60 * 60 * 3 );
 

@@ -8,7 +8,7 @@ function Tweeter(oAuthData) {
     /**
      * Initialises a a chunk video upload to twitter.
      */
-    const initVideoUpload = (mediaFile, fileSize) => {
+    const initMediaUpload = (mediaFile, fileSize) => {
         return new Promise((resolve, reject) => {
             
             // The form data
@@ -16,7 +16,7 @@ function Tweeter(oAuthData) {
                 command: 'INIT',
                 total_bytes: fileSize,
                 media_type: mediaFile.mimetype,
-                media_category: 'tweet_video'
+                media_category: mediaFile.media_category
             };
 
             // Initialising media upload
@@ -174,19 +174,21 @@ function Tweeter(oAuthData) {
         } );
     };
 
-    this.prepVideo = (videoFile) => {
+    this.prepVideo = ( videoFile ) => {
         return new Promise(async (resolve, reject) => {
+            const FIVE_MB = 5000000;
             let filenames, 
             filestat, 
             fileSize = 0,
             media,
-            response,
-            videoInfo = {};
+            response;
             
             try {
                 // Splitting the video file into a series of smaller files
                 filenames = await splitFile.splitFileBySize(
-                    videoFile.path_base  + videoFile.path_extn, 5000000);
+                                                videoFile.path,
+                                                FIVE_MB
+                                                );
 
                 // Getting the combined size of all the files
                 for (let file = 0; file < filenames.length; file++) {
@@ -196,19 +198,19 @@ function Tweeter(oAuthData) {
 
                 // Initialising the video upload
                 response = await initVideoUpload(videoFile, fileSize);
-                videoInfo.ID = response.media_id_string;
+                videoFile.media_id = response.media_id_string;
 
                 // Uploading the video files one at a time
                 for (i = 0; i < filenames.length; i++) {
                     media = fs.createReadStream(filenames[i]);
-                    await chunkVideoUpload(videoInfo.ID, media, i);
+                    await chunkVideoUpload(videoFile.media_id, media, i);
                 }
 
                 // Finalising the video upload
-                response = await finaliseVideoUpload(videoInfo.ID);
+                response = await finaliseVideoUpload(videoFile.media_id);
 
                 // Presuming the upload was successful
-                videoInfo.state = 'succeeded';
+                videoFile.state = 'succeeded';
 
                 // Waiting for the video to finalise
                 if (response.processing_info) {
@@ -218,10 +220,10 @@ function Tweeter(oAuthData) {
                                     );
                     
                     // Assigning the actual state of the media upload
-                    videoInfo.state = response.processing_info.state;
+                    videoFile.state = response.processing_info.state;
                 }
                 // Returning the media object we made
-                resolve(videoInfo);
+                resolve(videoFile);
             }
             catch (err) {
                 // Rejecting any errors that may have happened

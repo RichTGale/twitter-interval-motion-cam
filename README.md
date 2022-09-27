@@ -1,63 +1,36 @@
 # twitter-interval-motion-cam
 Records motion detected video at intervals and uploads it to twitter.
 
-Notes: 
-  - Code has only been tested using a Video4linux webcam device.
-  - Code and instruction are written for use on standard Linux distributions such as Debian, Ubuntu and Rasbian.
-
-Linux installation:
+## Linux installation:
 
 1. Install Nodejs: https://nodejs.org/
 
 2. Install Motion: https://motion-project.github.io/motion_build.html
 
-3. Open a command prompt and enter the following commands, replacing *username* with your username:
-    - cd /home/*username*/
-    - git clone https://github.com/srcarry/twitter-interval-motion-cam.git
-    - cd /home/*username*/twitter-interval-motion-cam/
-    - npm install fs-extra
-    - npm install glob
-    - npm install request
-    - npm install dotenv
-  
-4. Replace *username* in the base_path attribute value on line 174 of index.js with your local username.
+3. Open a command prompt and enter the following commands:
+```
+git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
+cd twitter-interval-motion-cam
+```
+then you may have to make the install file executable:
+```
+chmod +x ./install
+```
+then:
+```
+./install
+```
 
-5. Still in the 'twitter-interval-motion-cam' directory, create a file and name it '.env'. Edit the file to include these variables: 
-    - CONSUMER_KEY 
-    - CONSUMER_KEY_SECRET
-    - ACCESS_TOKEN
-    - ACCESS_TOKEN_SECRET
-  
-    and assign them the keys Twitter gave you after registering your app. Here's an example:
+5. Fill in the ```.env``` file with your Twitter authenitication details. Here's an example:
+```
+CONSUMER_KEY=q23yr203rgo23fu023fug3 
+CONSUMER_KEY_SECRET=23ruh230r8ug038reghyg4308g34tuhyb
+ACCESS_TOKEN=we8yug8uydg2q83ueh2937he293r23r
+ACCESS_TOKEN_SECRET=08ugwgfo903ewybf90oweyrg230ygr23ryg230ryg23  
+```
+Save the file.
 
-    CONSUMER_KEY=owi3h0r2q0hjje0i  
-    CONSUMER_KEY_SECRET=1qojer0912e1iwe1q02e23098h12038j2  
-    ACCESS_TOKEN=01qioje02w9ej01q92jee  
-    ACCESS_TOKEN_SECRET=02i3j02qwij2d0iw2je0i2j03498u0w2rf2w  
-
-    - Save the file.
-
-6. In the same directory, create a folder called 'storage-temp'.
-
-7. Replace *username* on line 450 of motion.conf with your username.
-  
-8. Plug in your camera. Make sure you only have 1 camera plugged in.
-  
-9. In a command prompt in the same directory type the command: *sudo node index.js*
-
-10. Wait a few minutes and and view your video on Twitter depending on whether motion was detected.
-
-Optional:
-  - NOTE: Depending on your camera quality, you may want to play around with the "Motion Detection Settings", starting at line 191 in motion.conf
-  - NOTE: There is a mximum file size for video upload. Depending on the video length (this program defaults to 20 seconds) and quality, videos may or may not be uploaded to twitter. You can change the maximum video length at line 257 of motion.conf
-  - Change camera overlay text on lines 405 and 410 of motion.conf
-  - Change camera resolution at lines 100 and 103 of motion.conf
-  - Change how often tweets are made (in milliseconds) on line 233 of index.js
-  - Change the *text* variable on line 198 of index.js (Changes tweet text with video)
-  - Change the *text* variable on line 224 of index.js (Changes tweet text if no video is created)
-  - You can replace lines 223 to 231 of index.js with one line that says:  
-  *else { run(); }*  
-  This will make it so if motion is not detected, nothing is uploaded and the program restarts. If you don't do this, and no motion is detected or the program can't find a video file that has been recorded, a tweet will be tweeted saying something like "Testing motion cam | no video file found".
-  - You can replace line 180 of index.js with:  
-  *let motionProcess = spawn('motion', ['-c', `${file.base_path}motion_night.conf`]);*  
-  (for a lower-light situation)
+## Running
+```
+sudo node index.js
+```
