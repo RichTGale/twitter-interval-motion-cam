@@ -92,8 +92,9 @@ let run = function() {
                     videoInfo = await tweeter.prepVideo(videoFile);
                     switch (videoInfo.state) {
                         case 'succeeded':
-                            statusText = 'Testing interval motion cam | '
-                                        + new Date().toLocaleString('AU');
+                            statusText = 'Budgie Box Cam '
+                                    + '| Rachael and Roger | '
+                                    + new Date().toLocaleString('AU');
                             console.log(
                                 await tweeter.tweetTextAndVideo(
                                                 statusText, 
@@ -110,8 +111,9 @@ let run = function() {
                     );
                 }
                 else {
-                    statusText = 'Testing interval motion camera - '
-                    + 'NO MOTION DETECTED OR VIDEO FILE NOT FOUND | ' 
+                    statusText = 'Budgie Box Cam '
+                    + '| Rachael and Roger '
+                    + '| NO MOTION DETECTED | ' 
                     + new Date().toLocaleString('AU');
 
                     try {
@@ -126,12 +128,12 @@ let run = function() {
                 console.error(err);
             }
 
-        }, 1000 * 5);
-    }, 1000 * 60 * 1);
+        }, 1000 * 30);
+    }, (1000 * 60 * 60 * 2) + (1000 * 50 * 45) );
 }
 
 run();
 setInterval(() => {
   run();
-}, 1000 * 60 * 60);
+}, 1000 * 60 * 60 * 3);
 
