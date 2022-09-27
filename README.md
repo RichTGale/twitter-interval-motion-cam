@@ -43,6 +43,12 @@ or
 $ sudo nodejs index.js
 ```
 
+## Uninstalling
+Run:
+```
+rm -rf /path/to/twitter-interval-motion-cam
+```
+
 ## Notes
  - Depending on whether motion is detected, the default configuration will upload a video that is up to 1 minute in length, once every 3 hours. You can change these settings in the ```params.js``` file. 
 
