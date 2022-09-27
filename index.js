@@ -181,14 +181,24 @@ let run = async () => {
         // one has been recorded.
         console.log('Ending the motion process...');
         MOTION.kill();
-    }, PARAMS.video_length );
+    }, PARAMS.detect_period );
 }
 
-// Running the program once initially.
-run();
+if ( PARAMS.detect_period <= PARAMS.upload_freq )
+{
+    // Running the program once initially.
+    run();
 
-// Running the program at intervals.
-setInterval( () => {
-  run();
-}, PARAMS.upload_freq );
+    // Running the program at intervals.
+    setInterval( () => {
+    run();
+    }, PARAMS.upload_freq );
+}
+else {
+    console.error( `ERROR: The upload_freq parameter (${PARAMS.upload_freq} `
+                + `milliseconds) is less than the detect_period parameter `
+                + `(${PARAMS.detect_period} milliseconds)` );
+}
+
+
 
