@@ -44,6 +44,8 @@ $ sudo nodejs index.js
 ```
 
 ## Notes
- - The default configuration will upload a video that is 1 minute in length, once every 3 hours. You can change these settings in the ```params.js``` file. The maximum video length is 10 minutes.
+ - Depending on whether motion is detected, the default configuration will upload a video that is up to 1 minute in length, once every 3 hours. You can change these settings in the ```params.js``` file. 
+
+ - The maximum value you can assign to ```video_length``` in ```params.js``` is limited to 10 minutes, or 600 seconds. If you want a video that is longer than 10 minutes, you can change the ```movie_max_time``` parameter in ```motion.conf```. However, keep in mind that the amount of time in which to upload a video is limited to Twitter's discretion. It is a reasonable amount of time, but if this program reports ```"The video failed to upload"``` when attempting to upload larger videos, it may be that the uploading time-limit has been reached.
 
  - This program uses ```motion Version 4.4.0```, which at the time of writing, is the newest version. If you are using a newer version, you may have to copy its ```motion.conf``` file, usually located at ```/etc/motion/motion.conf```, to ```twitter-interval-motion-cam/motion.conf``` and make appropriate changes to it.
