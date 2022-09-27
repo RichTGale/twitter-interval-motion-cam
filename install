@@ -12,5 +12,9 @@ mkdir ./media
 
 # Creating an incomplete .env file
 touch ./.env
-echo 'CONSUMER_KEY=\nCONSUMER_KEY_SECRET=\nACCESS_TOKEN\nACCESS_TOKEN_SECRET=\n' >> ./.env
+echo 'CONSUMER_KEY=' >> ./.env
+echo 'CONSUMER_KEY_SECRET=' >> ./.env
+echo 'ACCESS_TOKEN=' >> ./.env
+echo 'ACCESS_TOKEN_SECRET=' >> ./.env
 
+printf '\ndone.\n\n'
