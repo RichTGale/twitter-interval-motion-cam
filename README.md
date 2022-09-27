@@ -3,7 +3,7 @@ Records motion detected video at intervals and uploads it to twitter.
 
 ## Linux installation:
 
-1. Install Nodejs: https://nodejs.org/
+1. Install NodeJS: https://nodejs.org/
 
 2. Install Motion: https://motion-project.github.io/motion_build.html
 
@@ -34,6 +34,15 @@ ACCESS_TOKEN_SECRET=08ugwgfo903ewybf90oweyrg230ygr23ryg230ryg23
 Save the ```.env``` file.
 
 ## Running
+Depending on how you installed NodeJS, you may have to run:
 ```
 sudo node index.js
 ```
+or
+```
+sudo nodejs index.js
+```
+
+## Notes
+ - The default configuration will upload a video once every 3 hours. You can change these settings in the ```twitter-interval-motion-cam/params.js``` file.
+ - This program uses ```motion Version 4.4.0```. If you are using a newer version, you may have to copy its ```motion.conf``` file to this program's directory (```twitter-interval-motion-cam```) and make appropriate changes to it. The file is normally located at ```/etc/motion/motion.conf```.

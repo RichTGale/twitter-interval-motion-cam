@@ -3,6 +3,7 @@ const glob = require( 'glob' );
 require( 'dotenv' ).config();
 
 const Tweeter = require( './Tweeter.js' );
+const PARAMS = require('./params.js');
 
 const deleteDirContents = ( dir ) => {
     let rm;
@@ -136,11 +137,11 @@ let run = function() {
             }
 
         }, 1000 * 30 );
-    }, ( 1000 * 60 * 60 * 2 ) + ( 1000 * 50 * 45 ) );
+    }, PARAMS.video_length );
 }
 
 run();
 setInterval( () => {
   run();
-}, 1000 * 60 * 60 * 3 );
+}, PARAMS.upload_freq );
 
