@@ -36,14 +36,14 @@ Save the ```.env``` file.
 ## Running
 Depending on how you installed NodeJS, you may have to run:
 ```
-sudo node index.js
+$ sudo node index.js
 ```
 or
 ```
-sudo nodejs index.js
+$ sudo nodejs index.js
 ```
 
 ## Notes
- - The default configuration will upload a video once every 3 hours. You can change these settings in the ```twitter-interval-motion-cam/params.js``` file.
- 
- - This program uses ```motion Version 4.4.0```. If you are using a newer version, you may have to copy its ```motion.conf``` file to this program's directory (```twitter-interval-motion-cam```) and make appropriate changes to it. The file is normally located at ```/etc/motion/motion.conf```.
+ - The default configuration will upload a video that is 1 minute in length, once every 3 hours. However, because it takes time to upload the video to Twitter, this is slightly innacurate. You can change these settings in the ```params.js``` file.
+
+ - This program uses ```motion Version 4.4.0```. If you are using a newer version, you may have to copy its ```motion.conf``` file, usually located at ```/etc/motion/motion.conf```, to ```twitter-interval-motion-cam/motion.conf``` and make appropriate changes to it.
