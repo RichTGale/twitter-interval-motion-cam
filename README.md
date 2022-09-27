@@ -1,13 +1,17 @@
 # twitter-interval-motion-cam
 Records motion detected video at intervals and uploads it to twitter.
 
+## Prerequisites
+
+ - You need to have been approved for a [Twitter developer's](https://developer.twitter.com/) account and created an application.
+
+ - [NodeJS](https://nodejs.org/) must be installed on your system.
+
+ - [Motion](https://motion-project.github.io/motion_build.html) must be installed on your system.
+
 ## Linux installation:
 
-1. Install NodeJS: https://nodejs.org/
-
-2. Install Motion: https://motion-project.github.io/motion_build.html
-
-3. Open a command prompt and enter the following commands:
+1. Open a command prompt and enter the following commands:
 ```
 $ git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
 
@@ -22,9 +26,7 @@ then:
 $ ./install
 ```
 
-5. In the base ```twitter-interval-motion-cam``` directory, there is a hidden file called ```.env```. Fill in the ```.env``` file with your Twitter authentication details.<br /> 
-
-Here's an example:
+2. In the base ```twitter-interval-motion-cam``` directory, there is a hidden file called ```.env```. Fill in the ```.env``` file with your Twitter application's authentication details. Here's an example:
 ```
 CONSUMER_KEY=q23yr203rgo23fu023fug3 
 CONSUMER_KEY_SECRET=23ruh230r8ug038reghyg4308g34tuhyb
