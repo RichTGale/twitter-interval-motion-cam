@@ -129,7 +129,7 @@ function Tweeter(oAuthData) {
             }
 
             if (text != "") { 
-                formData.text = text; 
+                formData.status = text; 
             }
             
             if (mediaIds != "") { 
@@ -197,7 +197,7 @@ function Tweeter(oAuthData) {
                 }
 
                 // Initialising the video upload
-                response = await initVideoUpload(videoFile, fileSize);
+                response = await initMediaUpload(videoFile, fileSize);
                 videoFile.media_id = response.media_id_string;
 
                 // Uploading the video files one at a time
@@ -215,7 +215,7 @@ function Tweeter(oAuthData) {
                 // Waiting for the video to finalise
                 if (response.processing_info) {
                     response = await statusVideoUpload(
-                                    videoInfo.ID, 
+                                    videoFile.media_id, 
                                     response.processing_info.check_after_secs,
                                     );
                     
