@@ -13,7 +13,7 @@ $ git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
 
 $ cd twitter-interval-motion-cam
 ```
-you may have to make the install file executable:
+you may have to make the ```install``` file executable:
 ```
 $ chmod +x ./install
 ```
