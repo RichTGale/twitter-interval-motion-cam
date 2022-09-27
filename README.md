@@ -22,7 +22,7 @@ then:
 $ ./install
 ```
 
-5. In the base ```twitter-interval-motion-cam``` directory, there is a hidden file called ```.env```. Fill in the ```.env``` file with your Twitter authenitication details.<br /> 
+5. In the base ```twitter-interval-motion-cam``` directory, there is a hidden file called ```.env```. Fill in the ```.env``` file with your Twitter authentication details.<br /> 
 
 Here's an example:
 ```
