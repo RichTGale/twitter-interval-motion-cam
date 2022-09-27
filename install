@@ -1,6 +1,5 @@
 #!/bin/bash
 
-npm install child_process
 npm install glob
 npm install dotenv
 npm install request

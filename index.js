@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { spawn } = require('node:child_process');
 const glob = require('glob');
 require('dotenv').config();
 
