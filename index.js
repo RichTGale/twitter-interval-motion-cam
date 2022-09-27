@@ -98,7 +98,6 @@ const uploadVideo = async () => {
                 // Attempting to upload the video.
                 mediaFile = await TWEETER.uploadMedia( mediaFile );
 
-                // Querying the video uloaded successfully.
                 switch ( mediaFile.state ) {
                     case 'succeeded':
                         // The video uploaded successfully so we're setting
