@@ -36,7 +36,7 @@ ACCESS_TOKEN_SECRET=08ugwgfo903ewybf90oweyrg230ygr23ryg230ryg23
 Save the ```.env``` file.
 
 ## Running
-Depending on how you installed NodeJS, you may have to run:
+Depending on how you installed NodeJS, you may have to, from within the ```twitter-interval-motion-cam``` directory, run:
 ```
 $ sudo node index.js
 ```
