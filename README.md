@@ -11,7 +11,7 @@ Records motion detected video at intervals and uploads it to twitter.
 
 ## Linux installation:
 
-1. Open a command prompt and enter the following commands:
+1. Open a command prompt and run the following commands:
 ```
 $ git clone https://github.com/RichTGale/twitter-interval-motion-cam.git
 
