@@ -1,4 +1,5 @@
 # twitter-interval-motion-cam
+## Probably doesn't work since Twitter changed to X!!
 Records motion detected video at intervals and uploads it to twitter.
 
 ## Prerequisites
